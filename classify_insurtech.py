@@ -2,7 +2,17 @@ import pandas as pd
 import os
 import re
 
-# --- CONFIGURATION: ARCHETYPES & KEYWORDS (Updated S&S 2025) ---
+# Import OpenAI classifier
+try:
+    from openai_classifier import classify_with_openai
+    OPENAI_AVAILABLE = True
+except Exception as e:
+    OPENAI_AVAILABLE = False
+    print(f"⚠️ OpenAI module not available: {e}")
+    import traceback
+    traceback.print_exc()
+
+# --- CONFIGURATION: ARCHETYPES & KEYWORDS (Legacy Mode) ---
 ARCHETYPES = {
     "Enablers": [
         "platform", "infrastructure", "saas", "cloud", "back-end", "white-label", 
@@ -55,8 +65,8 @@ def load_data(filepath):
 
 def classify_description(text):
     """
-    Analyzes text and returns the best matching archetype, 
-    confidence score/level, and found keywords.
+    Keyword-based classification (Legacy mode).
+    Analyzes text and returns the best matching archetype.
     """
     if not isinstance(text, str):
         return "Unclassified", "Low", ""
@@ -73,7 +83,6 @@ def classify_description(text):
         count = 0
         found = []
         for kw in keywords:
-            # Simple substring match (case-insensitive)
             if kw.lower() in text_lower:
                 matches = text_lower.count(kw.lower())
                 count += matches
@@ -112,11 +121,18 @@ def classify_description(text):
         
     return best_archetype, confidence, ", ".join(keywords_found_map[best_archetype])
 
-def classify_company_row(row, main_desc_col):
+def classify_company_row(row, main_desc_col, use_ai=False, ai_model=None):
     """
     Constructs the analysis text from multiple columns and runs classification.
-    Prioritizes the selected main description column, but appends content from 
-    'Industries', 'Industry Groups', and 'Full Description' if available.
+    
+    Args:
+        row: DataFrame row
+        main_desc_col: Main description column name
+        use_ai: If True, use OpenAI classification. If False, use keywords.
+        ai_model: OpenAI model to use (optional)
+    
+    Returns:
+        Tuple: (archetype, confidence, keywords/justification, secondary_archetypes, dcs, wave)
     """
     # 1. Start with the main user-selected column
     text_parts = []
@@ -133,10 +149,46 @@ def classify_company_row(row, main_desc_col):
                 text_parts.append(str(val))
     
     combined_text = " ".join(text_parts)
-    return classify_description(combined_text)
+    
+    # Get company name if available
+    name_col_candidates = ['Company', 'Name', 'Organization', 'company_name']
+    company_name = "Unknown Company"
+    for col in name_col_candidates:
+        if col in row.index and pd.notna(row[col]):
+            company_name = str(row[col])
+            break
+    
+    # Get industries separately for AI
+    industries = ""
+    if 'Industries' in row.index and pd.notna(row['Industries']):
+        industries = str(row['Industries'])
+    elif 'Industry Groups' in row.index and pd.notna(row['Industry Groups']):
+        industries = str(row['Industry Groups'])
+    
+    # Choose classification method
+    if use_ai and OPENAI_AVAILABLE:
+        try:
+            result = classify_with_openai(
+                company_name=company_name,
+                description=combined_text,
+                industries=industries,
+                model=ai_model
+            )
+            # Result format: (archetype, confidence, justification, secondary_archetypes, dcs, wave)
+            return result
+        except Exception as e:
+            print(f"AI classification failed for {company_name}, falling back to keywords: {e}")
+            # Fallback to keyword-based
+            arch, conf, kw = classify_description(combined_text)
+            return (arch, conf, kw, [], "", "")
+    else:
+        # Keyword-based classification
+        arch, conf, kw = classify_description(combined_text)
+        # Return in same format as AI (with empty secondary fields)
+        return (arch, conf, kw, [], "", "")
 
 def main():
-    print("--- InsurTech Classifier (Sosa & Sosa 2025) - Updated ---")
+    print("--- InsurTech Classifier (Sosa & Sosa 2025) - Hybrid Mode ---")
     
     # 1. Loading File
     filepath = input("Enter the path to your Excel/CSV file: ").strip().strip('"')
@@ -165,29 +217,40 @@ def main():
         col_name_desc = df.columns[desc_idx]
         
         print(f"\nSelected: ID='{col_name_id}', Description='{col_name_desc}'")
-        print("Note: The script will also automatically scan 'Industries' and 'Primary Industry' columns if present.")
+        print("Note: The script will also automatically scan 'Industries' and 'Industry Groups' columns if present.")
     except (ValueError, IndexError):
         print("Invalid column selection. Exiting.")
         return
 
-    # 3. Process Data
-    print("\nClassifying companies (Updated Logic)... Please wait.")
+    # 3. Choose mode
+    mode_choice = input("\nUse AI classification? (y/n, default=n): ").strip().lower()
+    use_ai = mode_choice == 'y'
+    
+    if use_ai and not OPENAI_AVAILABLE:
+        print("AI mode not available (missing dependencies). Using keyword mode.")
+        use_ai = False
+
+    # 4. Process Data
+    print(f"\nClassifying companies ({'AI Mode' if use_ai else 'Keyword Mode'})... Please wait.")
     
     results = []
     for index, row in df.iterrows():
-        archetype, confidence, keywords = classify_company_row(row, col_name_desc)
+        arch, conf, kw, sec_archs, dcs, wave = classify_company_row(row, col_name_desc, use_ai=use_ai)
         results.append({
-            "Predicted_Archetype": archetype,
-            "Confidence_Score": confidence,
-            "Keywords_Found": keywords
+            "Predicted_Archetype": arch,
+            "Confidence_Score": conf,
+            "Keywords_Found": kw,
+            "Secondary_Archetypes": ", ".join(sec_archs) if sec_archs else "",
+            "Driving_Capabilities": ", ".join(dcs) if dcs else "",
+            "Innovation_Wave": wave
         })
     
     # Append results to dataframe
     results_df = pd.DataFrame(results)
     final_df = pd.concat([df, results_df], axis=1)
 
-    # 4. Save Output
-    output_filename = "insurtech_classified_v2.xlsx"
+    # 5. Save Output
+    output_filename = "insurtech_classified_ai.xlsx" if use_ai else "insurtech_classified_v2.xlsx"
     output_path = os.path.join(os.path.dirname(filepath), output_filename)
     
     try:
