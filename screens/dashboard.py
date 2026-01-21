@@ -335,6 +335,26 @@ def render_dashboard():
     with open('styles.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     
+    # Hide sidebar close button to keep it always open
+    st.markdown("""
+        <style>
+        /* Hide the sidebar close button */
+        [data-testid="collapsedControl"] {
+            display: none !important;
+        }
+        
+        /* Keep sidebar always open */
+        [data-testid="stSidebar"] {
+            pointer-events: auto !important;
+        }
+        
+        /* Hide the X button inside sidebar */
+        [data-testid="stSidebar"] button[kind="header"] {
+            display: none !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
     # Render sidebar
     render_sidebar()
     
