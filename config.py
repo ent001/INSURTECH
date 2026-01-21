@@ -4,7 +4,10 @@ Contains OpenAI settings and the Sosa & Sosa 2025 framework context
 """
 
 import os
-import streamlit as st
+from dotenv import load_dotenv
+
+# Load .env file explicitly
+load_dotenv()
 
 # OpenAI API Configuration - Load from environment or Streamlit secrets
 def get_api_key():
@@ -15,9 +18,13 @@ def get_api_key():
     # Fall back to Streamlit secrets (Streamlit Cloud deployment)
     if not api_key:
         try:
-            api_key = st.secrets["OPENAI_API_KEY"]
+            import streamlit as st
+            api_key = st.secrets.get("OPENAI_API_KEY")
         except:
             pass
+    
+    if not api_key:
+        print("⚠️ WARNING: OPENAI_API_KEY not found in environment or secrets!")
     
     return api_key
 

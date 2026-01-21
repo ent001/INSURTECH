@@ -1,0 +1,328 @@
+/* InsurTech Analyzer - Custom Styling inspired by design.png */
+
+/* Color Palette */
+:root {
+    --primary: #4CAF50;
+    --secondary: #2196F3;
+    --warning: #FF9800;
+    --danger: #F44336;
+    --success: #00C853;
+    --background: #F5F7FA;
+    --card: #FFFFFF;
+    --text-primary: #2C3E50;
+    --text-secondary: #95A5A6;
+    --border: #E0E0E0;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Global Styles */
+.stApp {
+    background-color: var(--background);
+}
+
+/* Card Styles */
+.metric-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.metric-card-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.metric-card-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 8px 0;
+}
+
+.metric-card-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-card-change {
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.metric-card-change.positive {
+    color: var(--success);
+}
+
+.metric-card-change.negative {
+    color: var(--danger);
+}
+
+/* Upload Zone */
+.upload-zone {
+    background: var(--card);
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 60px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.upload-zone:hover {
+    border-color: var(--primary);
+    background: #f9fafb;
+}
+
+.upload-zone-icon {
+    font-size: 64px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.upload-zone-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.upload-zone-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* Hide Streamlit's "Browse files" button */
+[data-testid="stFileUploader"]>div>button {
+    display: none !important;
+}
+
+/* Make the whole upload section clickable */
+[data-testid="stFileUploader"] {
+    cursor: pointer;
+}
+
+[data-testid="stFileUploader"]>section {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+/* Progress Circle */
+.progress-circle {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.progress-circle-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* Sidebar */
+.sidebar {
+    background: var(--card);
+    padding: 24px 16px;
+    height: 100vh;
+    box-shadow: 2px 0 8px var(--shadow);
+}
+
+.sidebar-logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 32px;
+    padding-left: 12px;
+}
+
+.sidebar-nav-item {
+    padding: 12px 16px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-nav-item:hover {
+    background: var(--background);
+    color: var(--text-primary);
+}
+
+.sidebar-nav-item.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* Buttons */
+.custom-button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px var(--shadow);
+}
+
+.custom-button:hover {
+    background: #45a049;
+    box-shadow: 0 4px 8px var(--shadow);
+    transform: translateY(-1px);
+}
+
+.custom-button-secondary {
+    background: var(--card);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.custom-button-secondary:hover {
+    background: var(--background);
+}
+
+/* Data Table */
+.data-table {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.data-table-header {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.completed {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.cancelled {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.status-badge.error {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+/* Charts */
+.chart-container {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+/* Insights Section */
+.insights-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.insights-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.insights-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(10px);
+}
+
+/* Loading Animation */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Hide Streamlit defaults */
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
